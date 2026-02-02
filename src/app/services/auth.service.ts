@@ -5,19 +5,27 @@ import { jwtDecode } from 'jwt-decode';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 
+export interface UserProfile {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+}
+
 export interface User {
   _id: string;
-  name: string;
-  email: string;
-  role: 'ADMIN' | 'MANAGER' | 'USER';
+  role: 'admin' | 'shop' | 'buyer';
+  profile: UserProfile;
+  shop_id?: string;
 }
 
 export interface AuthResponse {
   _id: string;
-  name: string;
-  email: string;
   role: string;
+  profile: UserProfile;
   token: string;
+  shop_id?: string;
 }
 
 @Injectable({
@@ -43,12 +51,6 @@ export class AuthService {
           return;
         }
 
-        // We might need to fetch the full profile if the token doesn't have all info, 
-        // but for now let's assume the basic info is available or we just set the user as "active"
-        // Ideally we should call /profile to get the full user object if we need it.
-        // For this implementation, I'll store the User object in localStorage on login 
-        // or just rely on the token for role checking.
-
         const user = JSON.parse(localStorage.getItem('user') || 'null');
         if (user) {
           this.currentUserSubject.next(user);
@@ -63,12 +65,11 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
-        // Create a user object from response (excluding token)
         const user: User = {
           _id: response._id,
-          name: response.name,
-          email: response.email,
-          role: response.role as 'ADMIN' | 'MANAGER' | 'USER'
+          role: response.role as 'admin' | 'shop' | 'buyer',
+          profile: response.profile,
+          shop_id: response.shop_id
         };
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);
@@ -82,9 +83,9 @@ export class AuthService {
         localStorage.setItem('token', response.token);
         const user: User = {
           _id: response._id,
-          name: response.name,
-          email: response.email,
-          role: response.role as 'ADMIN' | 'MANAGER' | 'USER'
+          role: response.role as 'admin' | 'shop' | 'buyer',
+          profile: response.profile,
+          shop_id: response.shop_id
         };
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);

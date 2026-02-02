@@ -1,0 +1,100 @@
+<div class="page-header">
+  <h1>Promotions</h1>
+  <button class="btn btn-primary" (click)="openAddModal()">
+    <span class="icon">+</span> Add Promotion
+  </button>
+</div>
+
+<div class="card">
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Budget</th>
+          <th>Period</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="text-center">Loading...</td>
+        </tr>
+        <tr *ngIf="!isLoading && promotions.length === 0">
+          <td colspan="6" class="text-center">No promotions found.</td>
+        </tr>
+        <tr *ngFor="let promo of promotions">
+          <td>{{ promo.title }}</td>
+          <td><span class="badge type">{{ promo.type }}</span></td>
+          <td>{{ promo.budget.amount | currency:promo.budget.currency }}</td>
+          <td>
+            {{ promo.start_date | date:'shortDate' }} - {{ promo.end_date | date:'shortDate' }}
+          </td>
+          <td>
+            <span class="badge" [ngClass]="{'active': promo.is_active, 'inactive': !promo.is_active}">
+              {{ promo.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEditModal(promo)">✏️</button>
+            <button class="btn-icon delete" (click)="deletePromotion(promo._id!)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Edit Promotion' : 'Add Promotion' }}</h2>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" [(ngModel)]="currentPromotion.title" class="form-control" placeholder="Promotion Title">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="currentPromotion.type" class="form-control">
+            <option value="homepage">Homepage</option>
+            <option value="carousel">Carousel</option>
+            <option value="featured">Featured</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Budget Amount</label>
+          <input type="number" [(ngModel)]="currentPromotion.budget.amount" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" [ngModel]="currentPromotion.start_date | date:'yyyy-MM-dd'" (ngModelChange)="currentPromotion.start_date = $event" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="date" [ngModel]="currentPromotion.end_date | date:'yyyy-MM-dd'" (ngModelChange)="currentPromotion.end_date = $event" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="currentPromotion.is_active"> Active
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="savePromotion()" [disabled]="!currentPromotion.title">Save</button>
+    </div>
+  </div>
+</div>

@@ -17,5 +17,18 @@
             <span class="icon">📅</span>
             <span class="text">{{ currentDate }}</span>
         </div>
+        
+        <div class="divider"></div>
+        
+        <!-- User Profile Section -->
+        <div class="user-profile" *ngIf="currentUser$ | async as user">
+            <div class="user-info">
+                <span class="user-name">{{ user?.profile?.firstname }} {{ user?.profile?.lastname }}</span>
+                <span class="user-role">{{ user?.role }}</span>
+            </div>
+            <button class="logout-btn" (click)="logout()" title="Logout">
+                <span class="icon">🚪</span>
+            </button>
+        </div>
     </div>
 </header>

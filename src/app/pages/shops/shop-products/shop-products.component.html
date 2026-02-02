@@ -11,46 +11,71 @@
     </button>
 </div>
 
-<!-- Add Product Form -->
+<!-- Add/Edit Product Form -->
 <div class="form-card glass" *ngIf="showForm">
-    <h3>New Product</h3>
+    <h3>{{ isEditing ? 'Edit' : 'New' }} Product</h3>
     <form (ngSubmit)="onSubmit()" #productForm="ngForm">
         <div class="form-grid">
             <div class="form-group">
                 <label>Name</label>
                 <div class="input-wrapper">
-                    <input type="text" [(ngModel)]="newProduct.name" name="name" required placeholder="Product Name">
+                    <input type="text" [(ngModel)]="currentProduct.name" name="name" required placeholder="Product Name">
                 </div>
             </div>
             <div class="form-group">
                 <label>Category</label>
                 <div class="input-wrapper">
-                    <input type="text" [(ngModel)]="newProduct.category" name="category" required
+                    <input type="text" [(ngModel)]="currentProduct.category" name="category" required
                         placeholder="e.g. Fruits, Dairy">
                 </div>
             </div>
             <div class="form-group">
                 <label>Price</label>
                 <div class="input-wrapper">
-                    <input type="number" [(ngModel)]="newProduct.price" name="price" required min="0">
+                    <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Currency</label>
+                <div class="input-wrapper">
+                    <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
                 </div>
             </div>
             <div class="form-group">
                 <label>Stock</label>
                 <div class="input-wrapper">
-                    <input type="number" [(ngModel)]="newProduct.stockQuantity" name="stock" required min="0">
+                    <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <div class="input-wrapper">
+                    <select [(ngModel)]="currentProduct.stock.status" name="status">
+                        <option value="IN_STOCK">In Stock</option>
+                        <option value="LOW_STOCK">Low Stock</option>
+                        <option value="OUT_OF_STOCK">Out of Stock</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group full-width">
                 <label>Description</label>
                 <div class="input-wrapper">
-                    <textarea [(ngModel)]="newProduct.description" name="description" rows="2"></textarea>
+                    <textarea [(ngModel)]="currentProduct.description" name="description" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label>Images</label>
+                <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
+                <div class="image-previews" *ngIf="isEditing && currentProduct.images && currentProduct.images.length">
+                    <div class="preview-grid">
+                        <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
+                    </div>
                 </div>
             </div>
         </div>
         <div class="form-actions">
             <button type="submit" class="primary-btn" [disabled]="!productForm.valid || isLoading">
-                Save Product
+                {{ isLoading ? 'Saving...' : 'Save Product' }}
             </button>
         </div>
     </form>
@@ -59,6 +84,9 @@
 <!-- Product List -->
 <div class="products-grid">
     <div class="product-card glass" *ngFor="let product of products">
+        <div class="product-image" *ngIf="product.images && product.images.length">
+            <img [src]="product.images[0]" alt="{{ product.name }}">
+        </div>
         <div class="product-header">
             <h4>{{ product.name }}</h4>
             <span class="badge">{{ product.category }}</span>
@@ -66,16 +94,15 @@
         <div class="product-stats">
             <div class="stat">
                 <span class="label">Price</span>
-                <span class="value">${{ product.price }}</span>
+                <span class="value">{{ product.price.current }} {{ product.price.currency }}</span>
             </div>
             <div class="stat">
                 <span class="label">Stock</span>
-                <span class="value" [class.low]="product.stockQuantity < 10">{{ product.stockQuantity }}</span>
+                <span class="value" [class.low]="product.stock.quantity < 10">{{ product.stock.quantity }}</span>
             </div>
         </div>
         <div class="product-actions">
-            <button class="icon-btn edit">✏️</button>
-            <!-- Would implement update logic here -->
+            <button class="icon-btn edit" (click)="editProduct(product)">✏️</button>
         </div>
     </div>
 

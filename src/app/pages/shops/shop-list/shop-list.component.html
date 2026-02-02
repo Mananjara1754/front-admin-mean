@@ -26,8 +26,8 @@
                     </div>
                 </td>
                 <td>{{ shop.category }}</td>
-                <td>{{ shop.location.address }}</td>
-                <td>{{ shop.owner?.name || 'N/A' }}</td>
+                <td>{{ shop.location?.zone || 'N/A' }}</td>
+                <td>{{ shop.owner_user_id || 'N/A' }}</td>
                 <td>
                     <span class="status-badge active">Active</span>
                     <!-- Assuming active status for now, logic can be added later -->

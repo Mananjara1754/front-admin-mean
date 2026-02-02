@@ -1,0 +1,62 @@
+.page-container {
+  padding: 2rem;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.current-rent {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.amount {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--success);
+  margin: 1rem 0;
+}
+
+.status.paid {
+  color: var(--success);
+  background: rgba(34,197,94,0.12);
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.history {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-badge.paid {
+  color: var(--success);
+  background: rgba(34,197,94,0.12);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}

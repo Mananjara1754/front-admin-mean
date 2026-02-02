@@ -6,34 +6,40 @@ import { environment } from '../../environments/environment';
 export interface Shop {
     _id: string;
     name: string;
-    owner: {
-        _id: string;
-        name: string;
-        email: string;
+    description?: string;
+    logo?: string;
+    category?: string;
+    location?: {
+        floor?: number;
+        zone?: string;
+        map_position?: {
+            x: number;
+            y: number;
+        };
     };
-    location: {
-        lat: number;
-        lng: number;
-        floor?: string;
-        address: string;
+    opening_hours?: {
+        monday?: { open: string; close: string };
+        tuesday?: { open: string; close: string };
+        wednesday?: { open: string; close: string };
+        thursday?: { open: string; close: string };
+        friday?: { open: string; close: string };
+        saturday?: { open: string; close: string };
+        sunday?: { open: string; close: string };
+        [key: string]: any;
     };
-    category: string;
-    openingHours?: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateShopDto {
-    name: string;
-    ownerId: string; // ID of the user (manager)
-    location: {
-        lat: number;
-        lng: number;
-        floor?: string;
-        address: string;
+    rent?: {
+        amount: number;
+        currency: string;
+        billing_cycle: string;
     };
-    category: string;
-    openingHours?: string;
+    owner_user_id?: string;
+    stats?: {
+        total_sales: number;
+        total_orders: number;
+        rating: number;
+    };
+    created_at?: string;
+    updated_at?: string;
 }
 
 @Injectable({
@@ -52,16 +58,15 @@ export class ShopService {
         return this.http.get<Shop>(`${this.apiUrl}/${id}`);
     }
 
-    createShop(data: CreateShopDto): Observable<Shop> {
-        const payload = { ...data, owner: data.ownerId }; // Backend expects 'owner' field as ID
-        return this.http.post<Shop>(this.apiUrl, payload);
+    createShop(shopData: any): Observable<Shop> {
+        // Handle FormData if logo is included
+        return this.http.post<Shop>(this.apiUrl, shopData);
     }
 
-    updateShop(id: string, data: Partial<CreateShopDto>): Observable<Shop> {
-        return this.http.put<Shop>(`${this.apiUrl}/${id}`, data);
+    updateShop(id: string, shopData: any): Observable<Shop> {
+        return this.http.put<Shop>(`${this.apiUrl}/${id}`, shopData);
     }
 
-    // Helper to delete if needed (though not in original routes list, standard REST practice)
     deleteShop(id: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/${id}`);
     }
