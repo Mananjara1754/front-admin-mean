@@ -18,7 +18,7 @@ export class MyProductsComponent implements OnInit {
   showModal = false;
   isEditing = false;
   isLoading = false;
-  
+
   currentProduct: any = this.getEmptyProduct();
   selectedFiles: File[] = [];
   shopId: string | null = null;
@@ -27,29 +27,39 @@ export class MyProductsComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private shopService: ShopService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.findUserShop(user._id);
-      }
-    });
-  }
-
-  findUserShop(userId: string) {
-    this.shopService.getShops().subscribe(shops => {
-      const myShop = shops.find((s: any) => {
-         const ownerId = typeof s.owner_user_id === 'object' ? s.owner_user_id._id : s.owner_user_id;
-         return ownerId === userId;
-      });
-      
-      if (myShop) {
-        this.shopId = myShop._id;
+      console.log("user",user);
+      if (user && user.shop_id) {
+        this.shopId = user.shop_id;
         this.loadProducts();
       }
     });
   }
+
+  // ngOnInit() {
+  //   this.authService.currentUser$.subscribe(user => {
+  //     if (user) {
+  //       this.findUserShop(user._id);
+  //     }
+  //   });
+  // }
+
+  // findUserShop(userId: string) {
+  //   this.shopService.getShops().subscribe(shops => {
+  //     const myShop = shops.find((s: any) => {
+  //        const ownerId = typeof s.owner_user_id === 'object' ? s.owner_user_id._id : s.owner_user_id;
+  //        return ownerId === userId;
+  //     });
+
+  //     if (myShop) {
+  //       this.shopId = myShop._id;
+  //       this.loadProducts();
+  //     }
+  //   });
+  // }
 
   getEmptyProduct() {
     return {
@@ -99,20 +109,20 @@ export class MyProductsComponent implements OnInit {
       alert('Shop not found for this user.');
       return;
     }
-    
+
     this.isLoading = true;
     const formData = new FormData();
-    
+
     // Append basic fields
     formData.append('shop_id', this.shopId);
     formData.append('name', this.currentProduct.name);
     formData.append('description', this.currentProduct.description || '');
     formData.append('category', this.currentProduct.category || '');
-    
+
     // Append nested objects as JSON strings
     formData.append('price', JSON.stringify(this.currentProduct.price));
     formData.append('stock', JSON.stringify(this.currentProduct.stock));
-    
+
     if (this.currentProduct.promotion) {
       formData.append('promotion', JSON.stringify(this.currentProduct.promotion));
     }
@@ -152,7 +162,7 @@ export class MyProductsComponent implements OnInit {
   }
 
   deleteProduct(id: string) {
-    if(confirm('Are you sure you want to delete this product?')) {
+    if (confirm('Are you sure you want to delete this product?')) {
       this.productService.deleteProduct(id).subscribe({
         next: () => {
           this.loadProducts();
