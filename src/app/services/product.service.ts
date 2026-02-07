@@ -5,26 +5,29 @@ import { environment } from '../../environments/environment';
 
 export interface Product {
   _id: string;
+  shop_id: string;
   name: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  category: string;
-  shop: { _id: string; name: string } | string;
-  isSponsored: boolean;
-  discount: number;
-  imageUrl?: string;
-}
-
-export interface CreateProductDto {
-  name: string;
-  description: string;
-  price: number;
-  stockQuantity: number;
-  category: string;
-  shop: string; // Shop ID
-  isSponsored?: boolean;
-  discount?: number;
+  description?: string;
+  category?: string;
+  images: string[];
+  price: {
+    current: number;
+    currency: string;
+  };
+  stock: {
+    quantity: number;
+    low_stock_threshold?: number;
+    status?: 'in_stock' | 'low_stock' | 'out_of_stock';
+  };
+  promotion?: {
+    is_active: boolean;
+    discount_percent: number;
+    start_date?: Date;
+    end_date?: Date;
+  };
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 @Injectable({
@@ -35,9 +38,9 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts(filters?: { shop?: string; category?: string; search?: string }): Observable<Product[]> {
+  getProducts(filters?: { shop_id?: string; category?: string; search?: string }): Observable<Product[]> {
     let params = new HttpParams();
-    if (filters?.shop) params = params.set('shop', filters.shop);
+    if (filters?.shop_id) params = params.set('shop_id', filters.shop_id);
     if (filters?.category) params = params.set('category', filters.category);
     if (filters?.search) params = params.set('search', filters.search);
 
@@ -48,11 +51,15 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
-  createProduct(data: CreateProductDto): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, data);
+  createProduct(productData: FormData): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, productData);
   }
 
-  updateStock(id: string, stockQuantity: number): Observable<Product> {
-    return this.http.patch<Product>(`${this.apiUrl}/${id}/stock`, { stockQuantity });
+  updateProduct(id: string, productData: FormData): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, productData);
+  }
+
+  deleteProduct(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

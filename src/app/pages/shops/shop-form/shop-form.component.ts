@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ShopService, CreateShopDto } from '../../../services/shop.service';
+import { ShopService, Shop } from '../../../services/shop.service';
 
 @Component({
   selector: 'app-shop-form',
@@ -15,16 +15,21 @@ export class ShopFormComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
   shopId: string | null = null;
+  selectedLogo: File | null = null;
 
-  shopData: CreateShopDto = {
+  shopData: Partial<Shop> = {
     name: '',
+    description: '',
     category: '',
-    ownerId: '',
     location: {
-      address: '',
-      lat: 0,
-      lng: 0,
-      floor: ''
+      floor: 1,
+      zone: '',
+      map_position: { x: 0, y: 0 }
+    },
+    rent: {
+      amount: 0,
+      currency: 'USD',
+      billing_cycle: 'monthly'
     }
   };
 
@@ -46,33 +51,60 @@ export class ShopFormComponent implements OnInit {
     this.isLoading = true;
     this.shopService.getShopById(id).subscribe({
       next: (shop) => {
-        this.shopData = {
-          name: shop.name,
-          category: shop.category,
-          ownerId: shop.owner?._id || '', // Handle population
-          location: shop.location,
-          openingHours: shop.openingHours
-        };
+        this.shopData = shop;
+        // Ensure nested objects exist
+        if (!this.shopData.location) this.shopData.location = { floor: 1, zone: '', map_position: { x: 0, y: 0 } };
+        if (!this.shopData.rent) this.shopData.rent = { amount: 0, currency: 'USD', billing_cycle: 'monthly' };
+        
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading shop', err);
-        // Navigate back or show error
         this.isLoading = false;
       }
     });
   }
 
+  onLogoSelected(event: any) {
+    if (event.target.files && event.target.files[0]) {
+      this.selectedLogo = event.target.files[0];
+    }
+  }
+
   onSubmit() {
     this.isLoading = true;
+    const formData = new FormData();
+    
+    formData.append('name', this.shopData.name || '');
+    formData.append('description', this.shopData.description || '');
+    formData.append('category', this.shopData.category || '');
+    
+    // Append location fields
+    if (this.shopData.location) {
+      formData.append('location[floor]', (this.shopData.location.floor || 0).toString());
+      formData.append('location[zone]', this.shopData.location.zone || '');
+      formData.append('location[map_position][x]', (this.shopData.location.map_position?.x || 0).toString());
+      formData.append('location[map_position][y]', (this.shopData.location.map_position?.y || 0).toString());
+    }
+
+    // Append rent fields
+    if (this.shopData.rent) {
+      formData.append('rent[amount]', (this.shopData.rent.amount || 0).toString());
+      formData.append('rent[currency]', this.shopData.rent.currency || 'USD');
+      formData.append('rent[billing_cycle]', this.shopData.rent.billing_cycle || 'monthly');
+    }
+
+    if (this.selectedLogo) {
+      formData.append('logo', this.selectedLogo);
+    }
 
     if (this.isEditMode && this.shopId) {
-      this.shopService.updateShop(this.shopId, this.shopData).subscribe({
+      this.shopService.updateShop(this.shopId, formData).subscribe({
         next: () => this.handleSuccess(),
         error: (err) => this.handleError(err)
       });
     } else {
-      this.shopService.createShop(this.shopData).subscribe({
+      this.shopService.createShop(formData).subscribe({
         next: () => this.handleSuccess(),
         error: (err) => this.handleError(err)
       });
@@ -87,6 +119,6 @@ export class ShopFormComponent implements OnInit {
   private handleError(err: any) {
     console.error('Save error', err);
     this.isLoading = false;
-    alert('Failed to save shop. See console for details.');
+    alert('Failed to save shop.');
   }
 }

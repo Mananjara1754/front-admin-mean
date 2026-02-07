@@ -1,0 +1,89 @@
+<div class="header-actions">
+  <h2>My Products</h2>
+  <button class="btn-primary" (click)="openModal()">+ Add Product</button>
+</div>
+
+<div class="card-grid">
+  <div class="card" *ngFor="let product of products">
+    <div class="card-image">
+      <img *ngIf="product.images && product.images.length" [src]="product.images[0]" alt="{{ product.name }}">
+      <div class="no-image" *ngIf="!product.images || !product.images.length">
+        <span>No Image</span>
+      </div>
+    </div>
+    <div class="card-header">
+      <h3>{{ product.name }}</h3>
+      <span class="price">{{ product.price.current }} {{ product.price.currency }}</span>
+    </div>
+    <div class="card-body">
+      <p>{{ product.description }}</p>
+      <p>Stock: {{ product.stock.quantity }}</p>
+    </div>
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="editProduct(product)">Edit</button>
+      <button class="btn-danger" (click)="deleteProduct(product._id)">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>{{ isEditing ? 'Edit' : 'Add' }} Product</h3>
+    <form (ngSubmit)="saveProduct()">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" [(ngModel)]="currentProduct.name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="currentProduct.description" name="description"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <input type="text" [(ngModel)]="currentProduct.category" name="category" placeholder="e.g. Food, Electronics">
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Price</label>
+          <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required min="0">
+        </div>
+        <div class="form-group half">
+            <label>Currency</label>
+            <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Stock Quantity</label>
+          <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required min="0">
+        </div>
+        <div class="form-group half">
+            <label>Status</label>
+            <select [(ngModel)]="currentProduct.stock.status" name="status">
+                <option value="in_stock">In Stock</option>
+                <option value="low_stock">Low Stock</option>
+                <option value="out_of_stock">Out of Stock</option>
+            </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Images (Max 5)</label>
+        <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
+        <div class="image-previews" *ngIf="isEditing && currentProduct.images && currentProduct.images.length">
+            <p>Current Images:</p>
+            <div class="preview-grid">
+                <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
+            </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

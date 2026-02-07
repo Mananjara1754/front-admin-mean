@@ -4,6 +4,12 @@ import { LoginComponent } from './pages/login/login.component';
 import { ShopListComponent } from './pages/shops/shop-list/shop-list.component';
 import { ShopFormComponent } from './pages/shops/shop-form/shop-form.component';
 import { ShopProductsComponent } from './pages/shops/shop-products/shop-products.component';
+import { CategoriesComponent } from './pages/categories/categories.component';
+import { PromotionsComponent } from './pages/promotions/promotions.component';
+import { MyProductsComponent } from './pages/my-products/my-products.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { RentComponent } from './pages/rent/rent.component';
+import { ShopPromotionsComponent } from './pages/promotions/shop-promotions.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -15,15 +21,22 @@ export const routes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', component: DashboardComponent },
 
-            // Shop Management Routes
+            // Admin Routes
             { path: 'shops', component: ShopListComponent },
             { path: 'shops/new', component: ShopFormComponent },
-            { path: 'shops/:id', component: ShopFormComponent }, // Edit route
+            { path: 'shops/:id', component: ShopFormComponent },
             { path: 'shops/:id/products', component: ShopProductsComponent },
+            { path: 'categories', component: CategoriesComponent },
+            { path: 'promotions', component: PromotionsComponent },
+            { path: 'users', component: DashboardComponent }, // Placeholder
 
-            // Placeholders
-            { path: 'rents', component: DashboardComponent },
-            { path: 'users', component: DashboardComponent },
+            // Shop Owner Routes
+            { path: 'my-products', component: MyProductsComponent },
+            { path: 'orders', component: OrdersComponent },
+            { path: 'shop-promotions', component: ShopPromotionsComponent },
+            { path: 'rents', component: RentComponent },
+            
+            // Shared/Other
             { path: 'settings', component: DashboardComponent },
         ]
     },

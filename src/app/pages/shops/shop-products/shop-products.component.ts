@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ProductService, Product, CreateProductDto } from '../../../services/product.service';
+import { ProductService, Product } from '../../../services/product.service';
 import { ShopService } from '../../../services/shop.service';
 
 @Component({
@@ -18,17 +18,10 @@ export class ShopProductsComponent implements OnInit {
   products: Product[] = [];
   showForm = false;
   isLoading = false;
+  isEditing = false;
+  selectedFiles: File[] = [];
 
-  newProduct: CreateProductDto = {
-    name: '',
-    description: '',
-    price: 0,
-    stockQuantity: 0,
-    category: '',
-    shop: '',
-    isSponsored: false,
-    discount: 0
-  };
+  currentProduct: any = this.getEmptyProduct();
 
   constructor(
     private route: ActivatedRoute,
@@ -39,10 +32,21 @@ export class ShopProductsComponent implements OnInit {
   ngOnInit() {
     this.shopId = this.route.snapshot.paramMap.get('id');
     if (this.shopId) {
-      this.newProduct.shop = this.shopId;
       this.loadShopInfo();
       this.loadProducts();
     }
+  }
+
+  getEmptyProduct() {
+    return {
+      name: '',
+      description: '',
+      category: '',
+      shop: this.shopId || '',
+      price: { current: 0, currency: 'EUR' },
+      stock: { quantity: 0, status: 'IN_STOCK' },
+      images: []
+    };
   }
 
   loadShopInfo() {
@@ -54,41 +58,78 @@ export class ShopProductsComponent implements OnInit {
 
   loadProducts() {
     if (!this.shopId) return;
-    this.productService.getProducts({ shop: this.shopId }).subscribe(products => {
+    this.productService.getProducts({ shop_id: this.shopId }).subscribe(products => {
       this.products = products;
     });
   }
 
   toggleForm() {
     this.showForm = !this.showForm;
+    if (this.showForm) {
+      this.isEditing = false;
+      this.currentProduct = this.getEmptyProduct();
+      this.selectedFiles = [];
+    }
+  }
+
+  editProduct(product: Product) {
+    this.isEditing = true;
+    this.currentProduct = JSON.parse(JSON.stringify(product));
+    this.selectedFiles = [];
+    this.showForm = true;
+  }
+
+  onFileSelected(event: any) {
+    if (event.target.files) {
+      this.selectedFiles = Array.from(event.target.files);
+    }
   }
 
   onSubmit() {
-    this.isLoading = true;
-    this.productService.createProduct(this.newProduct).subscribe({
-      next: (product) => {
-        this.products.push(product); // Optimistic update or reload
-        this.isLoading = false;
-        this.showForm = false;
-        this.resetForm();
-      },
-      error: (err) => {
-        console.error('Failed to create product', err);
-        this.isLoading = false;
-      }
-    });
-  }
+    if (!this.shopId) return;
 
-  resetForm() {
-    this.newProduct = {
-      name: '',
-      description: '',
-      price: 0,
-      stockQuantity: 0,
-      category: '',
-      shop: this.shopId || '',
-      isSponsored: false,
-      discount: 0
-    };
+    this.isLoading = true;
+    const formData = new FormData();
+    formData.append('shop', this.shopId);
+    formData.append('name', this.currentProduct.name);
+    formData.append('description', this.currentProduct.description || '');
+    formData.append('category', this.currentProduct.category || '');
+    
+    formData.append('price[current]', this.currentProduct.price.current.toString());
+    formData.append('price[currency]', this.currentProduct.price.currency || 'EUR');
+    formData.append('stock[quantity]', this.currentProduct.stock.quantity.toString());
+    formData.append('stock[status]', this.currentProduct.stock.status || 'IN_STOCK');
+
+    this.selectedFiles.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    if (this.isEditing && this.currentProduct._id) {
+      this.productService.updateProduct(this.currentProduct._id, formData).subscribe({
+        next: () => {
+          this.loadProducts();
+          this.isLoading = false;
+          this.showForm = false;
+          this.currentProduct = this.getEmptyProduct();
+        },
+        error: (err) => {
+          console.error('Failed to update product', err);
+          this.isLoading = false;
+        }
+      });
+    } else {
+      this.productService.createProduct(formData).subscribe({
+        next: (product) => {
+          this.products.push(product);
+          this.isLoading = false;
+          this.showForm = false;
+          this.currentProduct = this.getEmptyProduct();
+        },
+        error: (err) => {
+          console.error('Failed to create product', err);
+          this.isLoading = false;
+        }
+      });
+    }
   }
 }
