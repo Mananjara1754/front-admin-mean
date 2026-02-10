@@ -1,4 +1,4 @@
-<header class="header glass">
+<header class="header">
     <div class="search-bar">
         <span class="search-icon">🔍</span>
         <input type="text" placeholder="Search for shops, orders, or users...">
@@ -17,9 +17,9 @@
             <span class="icon">📅</span>
             <span class="text">{{ currentDate }}</span>
         </div>
-        
+
         <div class="divider"></div>
-        
+
         <!-- User Profile Section -->
         <div class="user-profile" *ngIf="currentUser$ | async as user">
             <div class="user-info">

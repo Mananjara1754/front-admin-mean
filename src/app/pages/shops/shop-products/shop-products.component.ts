@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductService, Product } from '../../../services/product.service';
 import { ShopService } from '../../../services/shop.service';
+import { CategoryService, Category } from '../../../services/category.service';
 
 @Component({
   selector: 'app-shop-products',
@@ -16,6 +17,7 @@ export class ShopProductsComponent implements OnInit {
   shopId: string | null = null;
   shopName: string = '';
   products: Product[] = [];
+  categories: Category[] = [];
   showForm = false;
   isLoading = false;
   isEditing = false;
@@ -26,7 +28,8 @@ export class ShopProductsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
-    private shopService: ShopService
+    private shopService: ShopService,
+    private categoryService: CategoryService
   ) { }
 
   ngOnInit() {
@@ -34,6 +37,7 @@ export class ShopProductsComponent implements OnInit {
     if (this.shopId) {
       this.loadShopInfo();
       this.loadProducts();
+      this.loadCategories();
     }
   }
 
@@ -41,9 +45,9 @@ export class ShopProductsComponent implements OnInit {
     return {
       name: '',
       description: '',
-      category: '',
+      category_id: '',
       shop: this.shopId || '',
-      price: { current: 0, currency: 'EUR' },
+      price: { current: 0, currency: 'MGA' },
       stock: { quantity: 0, status: 'IN_STOCK' },
       images: []
     };
@@ -61,6 +65,18 @@ export class ShopProductsComponent implements OnInit {
     this.productService.getProducts({ shop_id: this.shopId }).subscribe(products => {
       this.products = products;
     });
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe(categories => {
+      this.categories = categories;
+    });
+  }
+
+  getCategoryName(categoryId: string | undefined): string {
+    if (!categoryId) return 'N/A';
+    const category = this.categories.find(c => c._id === categoryId);
+    return category ? category.name : 'Unknown';
   }
 
   toggleForm() {
@@ -93,10 +109,10 @@ export class ShopProductsComponent implements OnInit {
     formData.append('shop', this.shopId);
     formData.append('name', this.currentProduct.name);
     formData.append('description', this.currentProduct.description || '');
-    formData.append('category', this.currentProduct.category || '');
+    formData.append('category_id', this.currentProduct.category_id || '');
     
     formData.append('price[current]', this.currentProduct.price.current.toString());
-    formData.append('price[currency]', this.currentProduct.price.currency || 'EUR');
+    formData.append('price[currency]', this.currentProduct.price.currency || 'MGA');
     formData.append('stock[quantity]', this.currentProduct.stock.quantity.toString());
     formData.append('stock[status]', this.currentProduct.stock.status || 'IN_STOCK');
 
