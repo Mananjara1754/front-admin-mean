@@ -13,15 +13,38 @@
     </div>
     <div class="card-header">
       <h3>{{ product.name }}</h3>
-      <span class="price">{{ product.price.current }} {{ product.price.currency }}</span>
+      <span class="price">{{ formatNumber(product.price.current) }} {{ product.price.currency }}</span>
     </div>
     <div class="card-body">
       <p>{{ product.description }}</p>
-      <p>Stock: {{ product.stock.quantity }}</p>
+      <p>Stock: {{ formatNumber(product.stock.quantity) }}</p>
+      <p *ngIf="product.category_id">Category: {{ getCategoryName(product.category_id) }}</p>
     </div>
     <div class="card-footer">
-      <button class="btn-secondary" (click)="editProduct(product)">Edit</button>
-      <button class="btn-danger" (click)="deleteProduct(product._id)">Delete</button>
+      <button class="btn-icon" (click)="showProductDetails(product)" title="View Details">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye"
+          viewBox="0 0 16 16">
+          <path
+            d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+        </svg>
+      </button>
+      <button class="btn-icon" (click)="editProduct(product)" title="Edit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
+          viewBox="0 0 16 16">
+          <path
+            d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+        </svg>
+      </button>
+      <button class="btn-icon btn-danger" (click)="deleteProduct(product._id)" title="Delete">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+          viewBox="0 0 16 16">
+          <path
+            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+          <path fill-rule="evenodd"
+            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+        </svg>
+      </button>
     </div>
   </div>
 </div>
@@ -40,7 +63,12 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <input type="text" [(ngModel)]="currentProduct.category" name="category" placeholder="e.g. Food, Electronics">
+        <select [(ngModel)]="currentProduct.category_id" name="category_id" class="form-control">
+          <option value="">Select Category</option>
+          <option *ngFor="let category of categories" [value]="category._id">
+            {{ category.name }}
+          </option>
+        </select>
       </div>
       <div class="form-row">
         <div class="form-group half">
@@ -48,8 +76,8 @@
           <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required min="0">
         </div>
         <div class="form-group half">
-            <label>Currency</label>
-            <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
+          <label>Currency</label>
+          <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency" readonly>
         </div>
       </div>
       <div class="form-row">
@@ -58,32 +86,109 @@
           <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required min="0">
         </div>
         <div class="form-group half">
-            <label>Status</label>
-            <select [(ngModel)]="currentProduct.stock.status" name="status">
-                <option value="in_stock">In Stock</option>
-                <option value="low_stock">Low Stock</option>
-                <option value="out_of_stock">Out of Stock</option>
-            </select>
+          <label>Status</label>
+          <select [(ngModel)]="currentProduct.stock.status" name="status">
+            <option value="in_stock">In Stock</option>
+            <option value="low_stock">Low Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+          </select>
         </div>
       </div>
-      
+
       <div class="form-group">
         <label>Images (Max 5)</label>
         <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
         <div class="image-previews" *ngIf="isEditing && currentProduct.images && currentProduct.images.length">
-            <p>Current Images:</p>
-            <div class="preview-grid">
-                <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
-            </div>
+          <p>Current Images:</p>
+          <div class="preview-grid">
+            <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
+          </div>
         </div>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn-primary" [disabled]="isLoading">
-            {{ isLoading ? 'Saving...' : 'Save' }}
+          {{ isLoading ? 'Saving...' : 'Save' }}
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal" *ngIf="showDetailsModal">
+  <div class="modal-content modal-xl">
+    <div class="modal-header">
+      <h3>{{ selectedProduct?.name }}</h3>
+      <button type="button" class="close" (click)="closeDetailsModal()">&times;</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedProduct">
+      <div class="product-details">
+        <div class="images-section">
+          <div class="main-image" *ngIf="selectedProduct.images && selectedProduct.images.length > 0">
+            <img [src]="selectedProduct.images[0]" alt="{{ selectedProduct.name }}">
+          </div>
+          <div class="thumbnails" *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
+            <img *ngFor="let image of selectedProduct.images.slice(1)" [src]="image" alt="{{ selectedProduct.name }}">
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-item">
+            <strong>Description:</strong>
+            <p>{{ selectedProduct.description || 'No description available' }}</p>
+          </div>
+
+          <div class="info-item">
+            <strong>Price:</strong>
+            <span class="price">{{ formatNumber(selectedProduct.price.current) }} {{ selectedProduct.price.currency
+              }}</span>
+          </div>
+
+          <div class="info-item">
+            <strong>Stock:</strong>
+            <span
+              [ngClass]="{'text-success': selectedProduct.stock.quantity > 10, 'text-warning': selectedProduct.stock.quantity <= 10 && selectedProduct.stock.quantity > 0, 'text-danger': selectedProduct.stock.quantity === 0}">
+              {{ formatNumber(selectedProduct.stock.quantity) }} ({{ selectedProduct.stock.status }})
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="selectedProduct.category_id">
+            <strong>Category:</strong>
+            <span>{{ getCategoryName(selectedProduct.category_id) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="selectedProduct.promotion && selectedProduct.promotion.is_active">
+            <strong>Promotion:</strong>
+            <span class="promotion">{{ selectedProduct.promotion.discount_percent }}% OFF</span>
+            <small *ngIf="selectedProduct.promotion.start_date && selectedProduct.promotion.end_date">
+              ({{ selectedProduct.promotion.start_date | date:'short' }} - {{ selectedProduct.promotion.end_date |
+              date:'short' }})
+            </small>
+          </div>
+        </div>
+
+        <div class="price-history-section"
+          *ngIf="selectedProduct.price_history && selectedProduct.price_history.length > 0">
+          <h4>Price History</h4>
+          <div class="price-chart">
+            <canvas id="priceHistoryChart"></canvas>
+          </div>
+          <div class="no-chart" *ngIf="selectedProduct.price_history.length < 2">
+            <p>Not enough data for chart.</p>
+          </div>
+          <div class="price-history-list">
+            <div *ngFor="let history of selectedProduct.price_history" class="history-item">
+              <span>{{ formatNumber(history.price) }} {{ selectedProduct.price.currency }}</span>
+              <small>{{ history.from | date:'short' }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeDetailsModal()">Close</button>
+    </div>
   </div>
 </div>

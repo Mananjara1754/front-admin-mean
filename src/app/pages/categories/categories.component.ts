@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CategoryService, CategoryProduct } from '../../services/category.service';
+import { CategoryService, Category } from '../../services/category.service';
 
 @Component({
   selector: 'app-categories',
@@ -11,11 +11,12 @@ import { CategoryService, CategoryProduct } from '../../services/category.servic
   styleUrl: './categories.component.css'
 })
 export class CategoriesComponent implements OnInit {
-  categories: CategoryProduct[] = [];
+  categories: Category[] = [];
   isLoading = false;
   showModal = false;
   isEditing = false;
-  currentCategory: CategoryProduct = {
+  currentCategory: Category = {
+    _id: '',
     name: '',
     description: '',
     slug: ''
@@ -43,11 +44,11 @@ export class CategoriesComponent implements OnInit {
 
   openAddModal() {
     this.isEditing = false;
-    this.currentCategory = { name: '', description: '', slug: '' };
+    this.currentCategory = { _id: '', name: '', description: '', slug: '' };
     this.showModal = true;
   }
 
-  openEditModal(category: CategoryProduct) {
+  openEditModal(category: Category) {
     this.isEditing = true;
     this.currentCategory = { ...category };
     this.showModal = true;
@@ -61,12 +62,12 @@ export class CategoriesComponent implements OnInit {
     if (!this.currentCategory.name) return;
 
     if (this.isEditing && this.currentCategory._id) {
-      this.categoryService.updateCategory(this.currentCategory._id, this.currentCategory).subscribe({
+      this.categoryService.updateCategory(this.currentCategory._id!, this.currentCategory).subscribe({
         next: () => {
           this.loadCategories();
           this.closeModal();
         },
-        error: (err) => console.error('Error updating category', err)
+        error: (err: any) => console.error('Error updating category', err)
       });
     } else {
       this.categoryService.createCategory(this.currentCategory).subscribe({
@@ -74,7 +75,7 @@ export class CategoriesComponent implements OnInit {
           this.loadCategories();
           this.closeModal();
         },
-        error: (err) => console.error('Error creating category', err)
+        error: (err: any) => console.error('Error creating category', err)
       });
     }
   }
@@ -83,7 +84,7 @@ export class CategoriesComponent implements OnInit {
     if (confirm('Are you sure you want to delete this category?')) {
       this.categoryService.deleteCategory(id).subscribe({
         next: () => this.loadCategories(),
-        error: (err) => console.error('Error deleting category', err)
+        error: (err: any) => console.error('Error deleting category', err)
       });
     }
   }

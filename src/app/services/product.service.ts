@@ -8,7 +8,7 @@ export interface Product {
   shop_id: string;
   name: string;
   description?: string;
-  category?: string;
+  category_id?: string;
   images: string[];
   price: {
     current: number;
@@ -25,6 +25,10 @@ export interface Product {
     start_date?: Date;
     end_date?: Date;
   };
+  price_history?: {
+    price: number;
+    from: Date;
+  }[];
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
