@@ -1,20 +1,28 @@
 <header class="header">
     <div class="search-bar">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon">
+            <img src="assets/image/icons/ic_search.svg" alt="Search">
+        </span>
         <input type="text" placeholder="Search for shops, orders, or users...">
     </div>
 
     <div class="header-actions">
         <button class="action-btn" title="Notifications">
-            <span class="icon">🔔</span>
+            <span class="icon">
+                <img src="assets/image/icons/ic_notification.svg" alt="Notifications">
+            </span>
             <span class="badge">3</span>
         </button>
         <button class="action-btn" title="Messages">
-            <span class="icon">✉️</span>
+            <span class="icon">
+                <img src="assets/image/icons/ic_message.svg" alt="Messages">
+            </span>
         </button>
         <div class="divider"></div>
         <div class="date-time">
-            <span class="icon">📅</span>
+            <span class="icon">
+                <img src="assets/image/icons/ic_calendar.svg" alt="Date">
+            </span>
             <span class="text">{{ currentDate }}</span>
         </div>
 
@@ -27,7 +35,9 @@
                 <span class="user-role">{{ user?.role }}</span>
             </div>
             <button class="logout-btn" (click)="logout()" title="Logout">
-                <span class="icon">🚪</span>
+                <span class="icon">
+                    <img src="assets/image/icons/ic_logout.svg" alt="Logout">
+                </span>
             </button>
         </div>
     </div>

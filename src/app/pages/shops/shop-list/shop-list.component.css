@@ -484,6 +484,16 @@
     align-items: center;
 }
 
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-main);
+}
+
+
 .search-icon {
     position: absolute;
     right: 1.25rem;
