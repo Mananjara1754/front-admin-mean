@@ -1,7 +1,7 @@
 <aside class="sidebar glass">
   <div class="logo">
-    <div class="logo-icon">G</div>
-    <span class="logo-text">Grosserie<span>Admin</span></span>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">Marketplace<span>Admin</span></span>
   </div>
 
   <nav class="nav-links" *ngIf="currentUser$ | async as user">
@@ -73,7 +73,8 @@
       </div>
     </div>
     <button class="logout-btn" (click)="logout()">
-      <span>🚪</span>
+      <span><img src="assets/image/icons/ic_logout.svg" alt="Logout"
+          style="width: 20px; height: 20px; filter: brightness(0) invert(1); opacity: 0.6;"></span>
     </button>
   </div>
 </aside>
