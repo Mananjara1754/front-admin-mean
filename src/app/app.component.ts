@@ -7,10 +7,12 @@ import { HeaderComponent } from './components/header/header.component';
 import { AuthService } from './services/auth.service';
 import { map } from 'rxjs/operators';
 
+import { ToastComponent } from './components/toast/toast.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, HeaderComponent, CommonModule],
+  imports: [RouterOutlet, SidebarComponent, HeaderComponent, CommonModule, ToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -113,4 +113,8 @@ export class AuthService {
     if (!user) return false;
     return roles.includes(user.role);
   }
+
+  changePassword(passwords: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/change-password`, passwords);
+  }
 }
