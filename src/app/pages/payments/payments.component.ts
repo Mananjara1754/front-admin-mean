@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PaymentService } from '../../services/payment.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-payments',
@@ -49,7 +50,8 @@ export class PaymentsComponent implements OnInit {
 
     constructor(
         private paymentService: PaymentService,
-        private authService: AuthService
+        private authService: AuthService,
+        private toastService: ToastService
     ) {
         const currentYear = new Date().getFullYear();
         this.years = [currentYear - 1, currentYear, currentYear + 1];
@@ -168,11 +170,11 @@ export class PaymentsComponent implements OnInit {
 
         this.paymentService.validateRent(this.paymentToValidate._id, this.selectedPaymentMethod).subscribe({
             next: () => {
-                // alert('Paiement validé avec succès');
+                this.toastService.success('Paiement validé avec succès');
                 this.closeValidationModal();
                 this.loadAdminData(); // Reload current view
             },
-            error: (err) => alert('Erreur: ' + err.message)
+            error: (err) => this.toastService.error('Erreur: ' + err.message)
         });
     }
 
@@ -196,7 +198,7 @@ export class PaymentsComponent implements OnInit {
                 a.click();
                 window.URL.revokeObjectURL(url);
             },
-            error: (err) => alert('Error downloading invoice: ' + err.message)
+            error: (err) => this.toastService.error('Erreur lors du téléchargement: ' + err.message)
         });
     }
 

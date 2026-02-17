@@ -12,8 +12,8 @@ import { OrdersComponent } from './pages/orders/orders.component';
 import { RentComponent } from './pages/rent/rent.component';
 import { ShopPromotionsComponent } from './pages/promotions/shop-promotions.component';
 import { authGuard } from './guards/auth.guard';
-
 import { PaymentsComponent } from './pages/payments/payments.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -42,7 +42,7 @@ export const routes: Routes = [
             { path: 'rents', component: RentComponent },
 
             // Shared/Other
-            { path: 'settings', component: DashboardComponent },
+            { path: 'settings', component: SettingsComponent },
         ]
     },
     { path: '**', redirectTo: 'login' }
