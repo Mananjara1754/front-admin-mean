@@ -18,10 +18,15 @@ export class PaymentService {
         return this.http.get<any>(this.apiUrl, { params });
     }
 
-    getShopPayments(shopId: string, page: number = 1, limit: number = 10): Observable<any> {
+    getShopPayments(shopId: string, page: number = 1, limit: number = 10, filters?: { payment_type?: string }): Observable<any> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('limit', limit.toString());
+
+        if (filters?.payment_type) {
+            params = params.set('payment_type', filters.payment_type);
+        }
+
         return this.http.get<any>(`${this.apiUrl}/shop/${shopId}`, { params });
     }
 
@@ -41,5 +46,43 @@ export class PaymentService {
         return this.http.get(`${this.apiUrl}/${id}/download`, {
             responseType: 'blob'
         });
+    }
+
+    payRent(data: { shop_id: string, month: string, year: string }): Observable<any> {
+        // Note: The route is technically /api/shops/rent/pay but we can call it from here
+        const shopRentUrl = `${environment.apiUrl}/shops/rent/pay`;
+        return this.http.post<any>(shopRentUrl, data);
+    }
+
+    validateRent(id: string, method?: string): Observable<any> {
+        const adminUrl = `${environment.apiUrl}/admin/rent/validate/${id}`;
+        return this.http.put<any>(adminUrl, { method });
+    }
+
+    getRentStatus(month: string, year: string, status?: string): Observable<any> {
+        let params = new HttpParams()
+            .set('month', month)
+            .set('year', year);
+
+        if (status) {
+            params = params.set('status', status);
+        }
+
+        const adminUrl = `${environment.apiUrl}/admin/rent/status`;
+        return this.http.get<any>(adminUrl, { params });
+    }
+
+    // Updated getPayments to support filtering
+    getAllPayments(page: number = 1, limit: number = 10, filters?: { status?: string, payment_type?: string }): Observable<any> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('limit', limit.toString());
+
+        if (filters) {
+            if (filters.status) params = params.set('status', filters.status);
+            if (filters.payment_type) params = params.set('payment_type', filters.payment_type);
+        }
+
+        return this.http.get<any>(this.apiUrl, { params });
     }
 }
